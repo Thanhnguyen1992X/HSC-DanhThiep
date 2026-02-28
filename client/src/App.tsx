@@ -5,11 +5,23 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 
+// Pages
+import NameCard from "@/pages/public/NameCard";
+import Login from "@/pages/admin/Login";
+import Dashboard from "@/pages/admin/Dashboard";
+import Employees from "@/pages/admin/Employees";
+
 function Router() {
   return (
     <Switch>
-      {/* Add pages below */}
-      {/* <Route path="/" component={Home}/> */}
+      {/* Admin Routes */}
+      <Route path="/admin/login" component={Login} />
+      <Route path="/admin" component={Dashboard} />
+      <Route path="/admin/employees" component={Employees} />
+      
+      {/* Public Name Card Route - Must be last to not catch /admin */}
+      <Route path="/:id" component={NameCard} />
+      
       {/* Fallback to 404 */}
       <Route component={NotFound} />
     </Switch>

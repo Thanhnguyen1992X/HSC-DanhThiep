@@ -1,0 +1,376 @@
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { insertEmployeeSchema, type InsertEmployee, type Employee } from "@shared/schema";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { UserCircle, MapPin, Building2, Link as LinkIcon, Globe } from "lucide-react";
+
+interface EmployeeFormProps {
+  initialData?: Employee;
+  onSubmit: (data: InsertEmployee) => void;
+  isPending: boolean;
+}
+
+export function EmployeeForm({ initialData, onSubmit, isPending }: EmployeeFormProps) {
+  const form = useForm<InsertEmployee>({
+    resolver: zodResolver(insertEmployeeSchema),
+    defaultValues: {
+      id: "",
+      fullName: "",
+      position: "",
+      department: "",
+      email: "",
+      phone: "",
+      phoneExt: "",
+      avatarUrl: "",
+      companyName: "HSC",
+      companyLogoUrl: "",
+      linkedinUrl: "",
+      facebookUrl: "",
+      zaloPhone: "",
+      websiteUrl: "",
+      address: "",
+      isActive: true,
+    },
+  });
+
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        id: initialData.id,
+        fullName: initialData.fullName,
+        position: initialData.position,
+        department: initialData.department,
+        email: initialData.email,
+        phone: initialData.phone,
+        phoneExt: initialData.phoneExt || "",
+        avatarUrl: initialData.avatarUrl || "",
+        companyName: initialData.companyName,
+        companyLogoUrl: initialData.companyLogoUrl || "",
+        linkedinUrl: initialData.linkedinUrl || "",
+        facebookUrl: initialData.facebookUrl || "",
+        zaloPhone: initialData.zaloPhone || "",
+        websiteUrl: initialData.websiteUrl || "",
+        address: initialData.address || "",
+        isActive: initialData.isActive,
+      });
+    }
+  }, [initialData, form]);
+
+  const previewValues = form.watch();
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+      {/* Form Section */}
+      <Card className="p-6 h-[75vh] overflow-hidden flex flex-col border-border/50 shadow-sm">
+        <div className="mb-4">
+          <h3 className="text-lg font-display font-semibold">Employee Details</h3>
+          <p className="text-sm text-muted-foreground">Fill in the contact information for the digital card.</p>
+        </div>
+        <ScrollArea className="flex-1 pr-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-6">
+              
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                  <UserCircle className="w-4 h-4" /> Basic Info
+                </div>
+                <Separator />
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Employee ID *</FormLabel>
+                        <FormControl><Input placeholder="e.g. NV001" disabled={!!initialData} {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="fullName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name *</FormLabel>
+                        <FormControl><Input placeholder="John Doe" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="position"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Position *</FormLabel>
+                        <FormControl><Input placeholder="Senior Director" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="department"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Department *</FormLabel>
+                        <FormControl><Input placeholder="Investment Banking" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="avatarUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Avatar URL</FormLabel>
+                      <FormControl><Input placeholder="https://example.com/avatar.jpg" {...field} value={field.value || ""} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="space-y-4 pt-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                  <MapPin className="w-4 h-4" /> Contact & Location
+                </div>
+                <Separator />
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email *</FormLabel>
+                        <FormControl><Input type="email" placeholder="john@hsc.com.vn" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone *</FormLabel>
+                        <FormControl><Input placeholder="+84 90 123 4567" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="phoneExt"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Extension (Opt)</FormLabel>
+                        <FormControl><Input placeholder="Ext. 1234" {...field} value={field.value || ""} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="zaloPhone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Zalo Phone (Opt)</FormLabel>
+                        <FormControl><Input placeholder="0901234567" {...field} value={field.value || ""} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Office Address (Opt)</FormLabel>
+                      <FormControl><Input placeholder="Level 5, AB Tower, HCMC" {...field} value={field.value || ""} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="space-y-4 pt-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                  <LinkIcon className="w-4 h-4" /> Social & Web
+                </div>
+                <Separator />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="linkedinUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>LinkedIn URL</FormLabel>
+                        <FormControl><Input placeholder="https://linkedin.com/in/..." {...field} value={field.value || ""} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="facebookUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Facebook URL</FormLabel>
+                        <FormControl><Input placeholder="https://facebook.com/..." {...field} value={field.value || ""} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <FormField
+                  control={form.control}
+                  name="websiteUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Personal Website</FormLabel>
+                      <FormControl><Input placeholder="https://..." {...field} value={field.value || ""} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="space-y-4 pt-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                  <Building2 className="w-4 h-4" /> Company Overlay
+                </div>
+                <Separator />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="companyName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company Name</FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="companyLogoUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company Logo URL</FormLabel>
+                        <FormControl><Input placeholder="https://..." {...field} value={field.value || ""} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <FormField
+                control={form.control}
+                name="isActive"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm bg-muted/30">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Active Card</FormLabel>
+                      <FormDescription>
+                        When turned off, the public link will show a 404 page.
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending ? "Saving..." : initialData ? "Save Changes" : "Create Employee"}
+              </Button>
+            </form>
+          </Form>
+        </ScrollArea>
+      </Card>
+
+      {/* Live Preview Section */}
+      <div className="hidden lg:flex flex-col items-center justify-center bg-muted/30 rounded-xl border border-border/50 p-8 h-[75vh]">
+        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-6">Live Preview</h3>
+        
+        {/* Miniature mobile frame */}
+        <div className="w-[320px] h-[640px] bg-background rounded-[2.5rem] border-[8px] border-foreground/10 shadow-2xl overflow-hidden relative shadow-foreground/5">
+          <div className="absolute top-0 w-full h-32 bg-hero-pattern"></div>
+          
+          <div className="relative pt-16 px-6 pb-6 flex flex-col items-center h-full">
+            <div className="w-24 h-24 rounded-full bg-white p-1 shadow-lg z-10 mb-4">
+              <img 
+                src={previewValues.avatarUrl || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop"} 
+                alt="Avatar" 
+                className="w-full h-full rounded-full object-cover"
+                onError={(e) => { e.currentTarget.src = "https://ui-avatars.com/api/?name=" + (previewValues.fullName || "User") + "&background=1a3a5c&color=fff"; }}
+              />
+            </div>
+            
+            <h2 className="text-xl font-display font-bold text-center text-foreground truncate w-full">
+              {previewValues.fullName || "John Doe"}
+            </h2>
+            <p className="text-sm text-primary font-medium mt-1 truncate w-full text-center">
+              {previewValues.position || "Position Title"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1 truncate w-full text-center">
+              {previewValues.companyName || "Company"} • {previewValues.department || "Department"}
+            </p>
+            
+            <div className="flex gap-3 mt-6">
+              {[1,2,3,4,5].map(i => (
+                <div key={i} className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                  <div className="w-4 h-4 bg-primary/20 rounded-full"></div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="w-full mt-auto space-y-3">
+              <div className="h-12 bg-primary rounded-xl opacity-90"></div>
+              <div className="h-12 border-2 border-primary/20 rounded-xl"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
