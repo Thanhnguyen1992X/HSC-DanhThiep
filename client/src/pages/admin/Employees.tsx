@@ -71,7 +71,9 @@ export default function Employees() {
   const filteredEmployees = employees.filter(emp => 
     emp.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     emp.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.department.toLowerCase().includes(searchTerm.toLowerCase())
+    emp.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (emp.position_en || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (emp.department_en || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleOpenCreate = () => {
@@ -165,7 +167,16 @@ export default function Employees() {
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full bg-primary/10 overflow-hidden flex-shrink-0 border border-primary/20">
                                 {emp.avatarUrl ? (
-                                  <img src={emp.avatarUrl} alt={emp.fullName} className="w-full h-full object-cover" />
+                                  <img
+                                    src={emp.avatarUrl}
+                                    alt={emp.fullName}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      // fallback to initials if image fails to load
+                                      e.currentTarget.onerror = null;
+                                      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(emp.fullName)}&background=1a3a5c&color=fff&size=256`;
+                                    }}
+                                  />
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center text-primary font-bold">
                                     {emp.fullName.charAt(0)}
@@ -179,12 +190,17 @@ export default function Employees() {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="font-medium">{emp.position}</div>
-                            <div className="text-xs text-muted-foreground mt-0.5">{emp.department}</div>
+                            <div className="font-medium">{emp.position}{emp.position_en ? ` / ${emp.position_en}` : ''}</div>
+                            <div className="text-xs text-muted-foreground mt-0.5">
+                              {emp.department}{emp.department_en ? ` / ${emp.department_en}` : ''}
+                            </div>
                           </td>
                           <td className="px-6 py-4">
                             <div className="truncate max-w-[200px]">{emp.email}</div>
                             <div className="text-xs text-muted-foreground mt-0.5">{emp.phone}</div>
+                            {emp.fax && (
+                              <div className="text-xs text-muted-foreground mt-0.5">Fax: {emp.fax}</div>
+                            )}
                           </td>
                           <td className="px-6 py-4 text-center">
                             <Badge variant={emp.isActive ? "default" : "secondary"} className={emp.isActive ? "bg-green-500/15 text-green-700 hover:bg-green-500/25 border-0" : ""}>
@@ -259,7 +275,7 @@ export default function Employees() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the employee record and their digital name card will no longer be accessible.
+              This action cannot be undone. This will permanently delete the employee record and their digital business card will no longer be accessible.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

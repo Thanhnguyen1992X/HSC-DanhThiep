@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useRoute } from "wouter";
+import { useRoute, Link as WouterLink } from "wouter";
 import { usePublicEmployee } from "@/hooks/use-employees";
 import { useTrackCardView } from "@/hooks/use-analytics";
 import { QRCodeSVG } from "qrcode.react";
@@ -7,7 +7,7 @@ import {
   Phone, 
   Mail, 
   MessageCircle, 
-  Linkedin, 
+  Link as LinkIcon,
   Globe, 
   Download, 
   QrCode,
@@ -25,8 +25,18 @@ import {
 } from "@/components/ui/dialog";
 
 export default function NameCard() {
-  const [match, params] = useRoute("/:id");
+  const [match, params] = useRoute("/:id/:lang?");
   const id = params?.id || "";
+  const langParam = params?.lang;
+  // determine if we're viewing english flavour
+  const isEnglish = langParam === 'en';
+  const switchHref = isEnglish ? `/${id}` : `/${id}/en`;
+
+  // helper to pick English variant when requested, otherwise fall back
+  const choose = (en: string | null | undefined, vn: string | null | undefined): string => {
+    if (isEnglish && en && en !== "") return en;
+    return vn || "";
+  };
   const [source, setSource] = useState<'qr' | 'nfc' | 'direct' | 'unknown'>('unknown');
   
   const { data: employee, isLoading, isError } = usePublicEmployee(id);
@@ -65,7 +75,7 @@ export default function NameCard() {
         </div>
         <h1 className="text-2xl font-display font-bold text-foreground">Card Not Found</h1>
         <p className="text-muted-foreground mt-2 max-w-sm">
-          The digital name card you are looking for doesn't exist or is currently inactive.
+          The digital business card you are looking for doesn't exist or is currently inactive.
         </p>
       </div>
     );
@@ -76,13 +86,13 @@ export default function NameCard() {
 VERSION:3.0
 N:${employee.fullName};;;;
 FN:${employee.fullName}
-ORG:${employee.companyName};${employee.department}
-TITLE:${employee.position}
+ORG:${choose(employee.companyName_en, employee.companyName)};${choose(employee.department_en, employee.department)}
+TITLE:${choose(employee.position_en, employee.position)}
 TEL;type=WORK;type=VOICE:${employee.phone}
 ${employee.phoneExt ? `TEL;type=WORK;type=VOICE:${employee.phoneExt}` : ''}
 EMAIL;type=WORK;type=INTERNET:${employee.email}
 URL:${employee.websiteUrl || ''}
-${employee.address ? `ADR;type=WORK:;;${employee.address};;;;` : ''}
+${choose(employee.address_en, employee.address) ? `ADR;type=WORK:;;${choose(employee.address_en, employee.address)};;;;` : ''}
 END:VCARD`;
 
     const blob = new Blob([vcard], { type: "text/vcard" });
@@ -120,10 +130,33 @@ END:VCARD`;
       <div className="w-full max-w-[420px] bg-card sm:rounded-3xl sm:shadow-xl sm:border border-border/50 overflow-hidden relative flex flex-col min-h-[100dvh] sm:min-h-0">
         
         {/* Top Hero Section */}
-        <div className="relative h-48 bg-hero-pattern flex items-center justify-center p-6">
+        <div
+          className="relative h-48 flex items-center justify-center p-6"
+          style={
+            employee.backgroundUrl
+              ? {
+                  backgroundImage: `url(${employee.backgroundUrl})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }
+              : undefined
+          }
+        >
+          {!employee.backgroundUrl && <div className="absolute inset-0 bg-hero-pattern" />}
+
           {employee.companyLogoUrl && (
             <div className="absolute top-6 right-6 bg-white/10 backdrop-blur-md rounded-lg p-2 max-w-[100px]">
-              <img src={employee.companyLogoUrl} alt="Company Logo" className="h-6 object-contain" />
+              {/* still using same field for the company website link; consider showing an icon or text */}
+              <img
+                src={employee.companyLogoUrl}
+                alt="Company Website"
+                className="h-6 object-contain"
+                onError={(e) => {
+                  // if the logo fails to load just hide the element entirely
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
             </div>
           )}
         </div>
@@ -145,16 +178,33 @@ END:VCARD`;
 
           {/* Profile Header */}
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-display font-bold text-foreground mb-1">
+            {/* language toggle button */}
+        <div className="absolute top-4 right-4">
+          <WouterLink href={switchHref}>
+            <button className="px-2 py-1 text-xs font-semibold rounded border border-primary/20 bg-white/80 hover:bg-white transition">
+              {isEnglish ? 'VN' : 'EN'}
+            </button>
+          </WouterLink>
+        </div>
+        <h1 className="text-2xl font-display font-bold text-foreground mb-1">
               {employee.fullName}
             </h1>
+            {/* department now comes before position */}
+            {choose(employee.department_en, employee.department) && (
+              <div className="text-sm text-muted-foreground font-medium mb-1">
+                {choose(employee.department_en, employee.department)}
+              </div>
+            )}
             <p className="text-base font-semibold text-primary mb-1">
-              {employee.position}
+              {choose(employee.position_en, employee.position)}
             </p>
-            <div className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground font-medium">
-              <Building2 className="w-4 h-4" />
-              <span>{employee.companyName} • {employee.department}</span>
-            </div>
+            {/* company name on its own line */}
+            {choose(employee.companyName_en, employee.companyName) && (
+              <div className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground font-medium mb-1">
+                <Building2 className="w-4 h-4" />
+                <span>{choose(employee.companyName_en, employee.companyName)}</span>
+              </div>
+            )}
           </div>
 
           {/* Quick Actions Circular Buttons */}
@@ -171,18 +221,26 @@ END:VCARD`;
               </div>
             </a>
             
-            {employee.zaloPhone && (
-              <a href={`https://zalo.me/${employee.zaloPhone}`} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-2 group hover-elevate">
-                <div className="w-12 h-12 rounded-full bg-[#0068FF]/10 text-[#0068FF] flex items-center justify-center group-hover:bg-[#0068FF] group-hover:text-white transition-all duration-300">
-                  <MessageCircle className="w-5 h-5" />
+            {employee.mobilePhone && (
+              <a href={`tel:${employee.mobilePhone}`} className="flex flex-col items-center gap-2 group hover-elevate">
+                <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                  <Phone className="w-5 h-5" />
+                </div>
+              </a>
+            )}
+
+            {employee.fax && (
+              <a href={`tel:${employee.fax}`} className="flex flex-col items-center gap-2 group hover-elevate">
+                <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                  <Phone className="w-5 h-5" />
                 </div>
               </a>
             )}
             
             {employee.linkedinUrl && (
               <a href={employee.linkedinUrl} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-2 group hover-elevate">
-                <div className="w-12 h-12 rounded-full bg-[#0A66C2]/10 text-[#0A66C2] flex items-center justify-center group-hover:bg-[#0A66C2] group-hover:text-white transition-all duration-300">
-                  <Linkedin className="w-5 h-5" />
+                <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                  <LinkIcon className="w-5 h-5" />
                 </div>
               </a>
             )}
@@ -191,6 +249,14 @@ END:VCARD`;
               <a href={employee.websiteUrl} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-2 group hover-elevate">
                 <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
                   <Globe className="w-5 h-5" />
+                </div>
+              </a>
+            )}
+
+            {employee.facebookUrl && (
+              <a href={employee.facebookUrl} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-2 group hover-elevate">
+                <div className="w-12 h-12 rounded-full bg-[#2c7cfa]/10 text-[#2c7cfa] flex items-center justify-center group-hover:bg-[#2c7cfa] group-hover:text-white transition-all duration-300">
+                  <MessageCircle className="w-5 h-5" />
                 </div>
               </a>
             )}
@@ -203,11 +269,47 @@ END:VCARD`;
                 <Phone className="w-4 h-4" />
               </div>
               <div className="overflow-hidden">
-                <p className="text-xs font-medium text-muted-foreground mb-0.5">Mobile</p>
+                <p className="text-xs font-medium text-muted-foreground mb-0.5">{isEnglish ? 'Telephone' : 'Điện Thoại'}</p>
                 <p className="text-sm font-semibold text-foreground truncate">{employee.phone}</p>
               </div>
             </a>
-            
+
+            {employee.mobilePhone && (
+            <a href={`tel:${employee.mobilePhone}`} className="flex items-center gap-4 p-2 rounded-xl hover:bg-card hover:shadow-sm transition-all duration-200">
+              <div className="w-10 h-10 rounded-full bg-background border flex items-center justify-center text-primary flex-shrink-0">
+                <Phone className="w-4 h-4" />
+              </div>
+              <div className="overflow-hidden">
+                <p className="text-xs font-medium text-muted-foreground mb-0.5">{isEnglish ? 'Mobile Phone' : 'Điện Thoại Di Động'}</p>
+                <p className="text-sm font-semibold text-foreground truncate">{employee.mobilePhone}</p>
+              </div>
+            </a>
+            )}
+
+            {employee.fax && (
+            <a href={`tel:${employee.fax}`} className="flex items-center gap-4 p-2 rounded-xl hover:bg-card hover:shadow-sm transition-all duration-200">
+              <div className="w-10 h-10 rounded-full bg-background border flex items-center justify-center text-primary flex-shrink-0">
+                <Phone className="w-4 h-4" />
+              </div>
+              <div className="overflow-hidden">
+                <p className="text-xs font-medium text-muted-foreground mb-0.5">Fax</p>
+                <p className="text-sm font-semibold text-foreground truncate">{employee.fax}</p>
+              </div>
+            </a>
+            )}
+
+            {employee.facebookUrl && (
+            <a href={employee.facebookUrl} className="flex items-center gap-4 p-2 rounded-xl hover:bg-card hover:shadow-sm transition-all duration-200">
+              <div className="w-10 h-10 rounded-full bg-background border flex items-center justify-center text-[#2c7cfa] flex-shrink-0">
+                <MessageCircle className="w-4 h-4" />
+              </div>
+              <div className="overflow-hidden">
+                <p className="text-xs font-medium text-muted-foreground mb-0.5">Zalo</p>
+                <p className="text-sm font-semibold text-foreground truncate">{employee.facebookUrl}</p>
+              </div>
+            </a>
+            )}
+
             <a href={`mailto:${employee.email}`} className="flex items-center gap-4 p-2 rounded-xl hover:bg-card hover:shadow-sm transition-all duration-200">
               <div className="w-10 h-10 rounded-full bg-background border flex items-center justify-center text-primary flex-shrink-0">
                 <Mail className="w-4 h-4" />
@@ -218,14 +320,25 @@ END:VCARD`;
               </div>
             </a>
 
-            {employee.address && (
+            {choose(employee.address_en, employee.address) && (
               <div className="flex items-center gap-4 p-2 rounded-xl hover:bg-card hover:shadow-sm transition-all duration-200">
                 <div className="w-10 h-10 rounded-full bg-background border flex items-center justify-center text-primary flex-shrink-0">
                   <MapPin className="w-4 h-4" />
                 </div>
                 <div className="overflow-hidden">
-                  <p className="text-xs font-medium text-muted-foreground mb-0.5">Office</p>
-                  <p className="text-sm font-semibold text-foreground break-words">{employee.address}</p>
+                  <p className="text-xs font-medium text-muted-foreground mb-0.5">{isEnglish ? 'Address' : 'Địa Chỉ'}</p>
+                  <p className="text-sm font-semibold text-foreground break-words">{choose(employee.address_en, employee.address)}</p>
+                </div>
+              </div>
+            )}
+            {choose(employee.mainOffice_en, employee.mainOffice) && (
+              <div className="flex items-center gap-4 p-2 rounded-xl hover:bg-card hover:shadow-sm transition-all duration-200">
+                <div className="w-10 h-10 rounded-full bg-background border flex items-center justify-center text-primary flex-shrink-0">
+                  <MapPin className="w-4 h-4" />
+                </div>
+                <div className="overflow-hidden">
+                  <p className="text-xs font-medium text-muted-foreground mb-0.5">{isEnglish ? 'Main Office' : 'Trụ Sở'}</p>
+                  <p className="text-sm font-semibold text-foreground break-words">{choose(employee.mainOffice_en, employee.mainOffice)}</p>
                 </div>
               </div>
             )}

@@ -50,6 +50,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteEmployee(id: string): Promise<void> {
+    // remove any analytics entries first (FK constraint)
+    await db.delete(cardViews).where(eq(cardViews.employeeId, id));
     await db.delete(employees).where(eq(employees.id, id));
   }
 

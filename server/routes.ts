@@ -4,6 +4,14 @@ import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { z } from "zod";
 import jwt from "jsonwebtoken";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+
+// __dirname is not available in ES modules; derive from import.meta.url
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 
 const JWT_SECRET = process.env.SESSION_SECRET || "super-secret-key-for-dev";
 
@@ -82,6 +90,37 @@ export async function registerRoutes(
   });
 
   // PROTECTED ADMIN ENDPOINTS
+
+  // file upload (avatar). Expects multipart/form-data with field 'avatar'
+  const upload = multer({
+    storage: multer.diskStorage({
+      destination: (req, file, cb) => {
+        const uploadDir = path.resolve(__dirname, "../public/uploads");
+        fs.mkdirSync(uploadDir, { recursive: true });
+        cb(null, uploadDir);
+      },
+      filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        const name = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+        cb(null, name);
+      }
+    }),
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype.startsWith("image/")) cb(null, true);
+      else cb(new Error("Only images allowed"));
+    },
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+  });
+
+  app.post("/api/admin/upload", authenticateToken, upload.single("avatar"), async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+    // send back accessible URL
+    const url = `/uploads/${req.file.filename}`;
+    res.status(200).json({ url });
+  });
+
   app.get(api.employees.list.path, authenticateToken, async (req, res) => {
     const employees = await storage.getEmployees();
     res.status(200).json(employees);
@@ -183,45 +222,68 @@ async function seedDatabase() {
           id: "123",
           fullName: "Nguyễn Văn A",
           position: "Giám đốc Kinh doanh",
+          position_en: "Business Director",
           department: "Phòng Kinh Doanh",
+          department_en: "Business Department",
           email: "nguyenvana@hsc.com.vn",
           phone: "0901234567",
+          fax: "",
           phoneExt: "101",
           avatarUrl: "",
+          backgroundUrl: "",
           companyName: "HSC",
+          companyName_en: "HSC",
           linkedinUrl: "https://linkedin.com/in/nguyenvana",
-          zaloPhone: "0901234567",
+          mobilePhone: "0901234567",
           websiteUrl: "https://hsc.com.vn",
+          address: "",
+          address_en: "",
+          mainOffice: "",
+          mainOffice_en: "",
           isActive: true
         },
         {
           id: "456",
           fullName: "Trần Thị B",
           position: "Kế toán trưởng",
+          position_en: "Chief Accountant",
           department: "Phòng Tài Chính",
+          department_en: "Finance Department",
           email: "tranthib@hsc.com.vn",
           phone: "0912345678",
+          fax: "",
           phoneExt: "102",
           avatarUrl: "",
+          backgroundUrl: "",
           companyName: "HSC",
+          companyName_en: "HSC",
           linkedinUrl: "https://linkedin.com/in/tranthib",
-          zaloPhone: "0912345678",
+          mobilePhone: "0912345678",
           websiteUrl: "https://hsc.com.vn",
+          address: "",
+          address_en: "",
           isActive: true
         },
         {
           id: "001",
           fullName: "Lê Minh C",
           position: "Giám đốc điều hành",
+          position_en: "Chief Executive Officer",
           department: "Ban Giám Đốc",
+          department_en: "Executive Board",
           email: "leminhc@hsc.com.vn",
           phone: "0923456789",
+          fax: "",
           phoneExt: "100",
           avatarUrl: "",
+          backgroundUrl: "",
           companyName: "HSC",
+          companyName_en: "HSC",
           linkedinUrl: "https://linkedin.com/in/leminhc",
-          zaloPhone: "0923456789",
+          mobilePhone: "0923456789",
           websiteUrl: "https://hsc.com.vn",
+          address: "",
+          address_en: "",
           isActive: true
         }
       ];

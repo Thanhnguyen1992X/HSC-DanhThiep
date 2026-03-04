@@ -20,7 +20,8 @@ function Router() {
       <Route path="/admin/employees" component={Employees} />
       
       {/* Public Name Card Route - Must be last to not catch /admin */}
-      <Route path="/:id" component={NameCard} />
+      {/* allow optional language segment so /000022/en still renders the card */}
+      <Route path="/:id/:lang?" component={NameCard} />
       
       {/* Fallback to 404 */}
       <Route component={NotFound} />

@@ -39,7 +39,7 @@ export default function Login() {
             <ShieldCheck className="w-8 h-8" />
           </div>
           <h1 className="text-3xl font-display font-bold text-foreground">Admin Portal</h1>
-          <p className="text-muted-foreground mt-2">Sign in to manage digital name cards</p>
+          <p className="text-muted-foreground mt-2">Sign in to manage digital business cards</p>
         </div>
 
         <Card className="p-8 border-border/50 shadow-xl shadow-black/5 rounded-3xl bg-background">

@@ -19,6 +19,16 @@ export const api = {
         401: errorSchemas.unauthorized,
       },
     },
+    upload: {
+      method: 'POST' as const,
+      path: '/api/admin/upload' as const,
+      // multipart/form-data, file field 'avatar'
+      responses: {
+        200: z.object({ url: z.string() }),
+        400: errorSchemas.validation,
+        401: errorSchemas.unauthorized,
+      }
+    }
   },
   public: {
     getEmployee: {

@@ -114,7 +114,21 @@ export function useDeleteEmployee() {
     mutationFn: async (id: string) => {
       const url = buildUrl(api.employees.delete.path, { id });
       const res = await fetchWithAuth(url, { method: api.employees.delete.method });
-      if (!res.ok) throw new Error("Failed to delete employee");
+      if (res.ok) {
+        return;
+      }
+
+      // try to parse a JSON body from the server so we can show a helpful message
+      let message = `Failed to delete employee (${res.status})`;
+      try {
+        const json = await res.json();
+        if (json && typeof json.message === 'string') {
+          message = json.message;
+        }
+      } catch {
+        // ignore parse errors, keep generic message
+      }
+      throw new Error(message);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [api.employees.list.path] });

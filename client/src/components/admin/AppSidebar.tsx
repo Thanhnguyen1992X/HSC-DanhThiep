@@ -32,7 +32,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <div className="px-4 py-6 mb-2">
             <h2 className="text-xl font-display font-bold text-sidebar-primary">HSC Admin</h2>
-            <p className="text-sm text-sidebar-foreground/60">Digital Name Cards</p>
+            <p className="text-sm text-sidebar-foreground/60">Digital Business Cards</p>
           </div>
           
           <SidebarGroupLabel>Management</SidebarGroupLabel>

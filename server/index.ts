@@ -1,7 +1,13 @@
 import express, { type Request, Response, NextFunction } from "express";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+
+// polyfill for __dirname since we are in ESM
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 const httpServer = createServer(app);
@@ -21,6 +27,13 @@ app.use(
 );
 
 app.use(express.urlencoded({ extended: false }));
+
+// always serve uploaded assets so dev preview works
+const uploadsDir = path.resolve(__dirname, "../public/uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+app.use("/uploads", express.static(uploadsDir));
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -90,14 +103,18 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || "5000", 10);
-  httpServer.listen(
-    {
-      port,
-      host: "0.0.0.0",
-      reusePort: true,
-    },
-    () => {
-      log(`serving on port ${port}`);
-    },
-  );
+  // httpServer.listen(
+  //   {
+  //     port,
+  //     host: "0.0.0.0",
+  //     reusePort: true,
+  //   },
+  //   () => {
+  //     log(`serving on port ${port}`);
+  //   },
+  // );
+  httpServer.listen(port, "127.0.0.1", () => {
+  log(`serving on port ${port}`);
+  });
+
 })();
