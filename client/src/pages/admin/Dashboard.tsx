@@ -75,7 +75,7 @@ export default function Dashboard() {
                       <Users className="w-7 h-7" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Active Profiles</p>
+                      <p className="text-sm font-medium text-muted-foreground">Total Profiles</p>
                       <h3 className="text-3xl font-display font-bold mt-1">{summary.topEmployees.length}</h3>
                     </div>
                   </Card>
