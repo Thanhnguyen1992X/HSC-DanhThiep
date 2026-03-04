@@ -7,11 +7,11 @@ import jwt from "jsonwebtoken";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { fileURLToPath } from "url";
+// import { fileURLToPath } from "url";
 
 // __dirname is not available in ES modules; derive from import.meta.url
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
+// const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname = path.resolve()
 
 const JWT_SECRET = process.env.SESSION_SECRET || "super-secret-key-for-dev";
 
