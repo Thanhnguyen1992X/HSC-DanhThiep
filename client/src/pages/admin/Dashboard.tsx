@@ -59,7 +59,7 @@ export default function Dashboard() {
               <div className="max-w-6xl mx-auto space-y-8">
                 
                 {/* Top Metrics */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   <Card className="p-6 border-border/50 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
                     <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
                       <Eye className="w-7 h-7" />
@@ -76,7 +76,17 @@ export default function Dashboard() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Total Profiles</p>
-                      <h3 className="text-3xl font-display font-bold mt-1">{summary.topEmployees.length}</h3>
+                      <h3 className="text-3xl font-display font-bold mt-1">{summary.totalProfiles.toLocaleString()}</h3>
+                    </div>
+                  </Card>
+
+                  <Card className="p-6 border-border/50 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+                    <div className="w-14 h-14 rounded-2xl bg-accent/20 text-accent-foreground flex items-center justify-center">
+                      <Users className="w-7 h-7" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Total Active Profiles</p>
+                      <h3 className="text-3xl font-display font-bold mt-1">{summary.totalActiveProfiles.toLocaleString()}</h3>
                     </div>
                   </Card>
 

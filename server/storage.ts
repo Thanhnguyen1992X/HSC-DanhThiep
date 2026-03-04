@@ -20,6 +20,8 @@ export interface IStorage {
   trackView(view: InsertCardView): Promise<CardView>;
   getAnalyticsSummary(): Promise<{
     totalViews: number;
+    totalProfiles: number;
+    totalActiveProfiles: number;
     viewsBySource: { source: string; count: number }[];
     topEmployees: { employeeId: string; fullName: string; viewCount: number }[];
     recentViews: { date: string; count: number }[];
@@ -64,6 +66,13 @@ export class DatabaseStorage implements IStorage {
     // Total views
     const [{ count }] = await db.select({ count: sql<number>`cast(count(*) as integer)` }).from(cardViews);
     
+    // Total profiles and active profiles
+    const [{ total: totalProfiles }] = await db.select({ total: sql<number>`cast(count(*) as integer)` }).from(employees);
+    const [{ active: totalActiveProfiles }] = await db
+      .select({ active: sql<number>`cast(count(*) as integer)` })
+      .from(employees)
+      .where(eq(employees.isActive, true));
+
     // Views by source
     const sourceStats = await db.select({
       source: cardViews.source,
@@ -91,6 +100,8 @@ export class DatabaseStorage implements IStorage {
 
     return {
       totalViews: count,
+      totalProfiles,
+      totalActiveProfiles,
       viewsBySource: sourceStats,
       topEmployees: topEmpStats.rows.map(r => ({
         employeeId: String(r.employeeId),

@@ -108,6 +108,8 @@ export const api = {
       responses: {
         200: z.object({
           totalViews: z.number(),
+          totalProfiles: z.number(),
+          totalActiveProfiles: z.number(),
           viewsBySource: z.array(z.object({ source: z.string(), count: z.number() })),
           topEmployees: z.array(z.object({ employeeId: z.string(), fullName: z.string(), viewCount: z.number() })),
           recentViews: z.array(z.object({ date: z.string(), count: z.number() }))
