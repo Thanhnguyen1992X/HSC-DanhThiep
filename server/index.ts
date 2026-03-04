@@ -1,13 +1,16 @@
 import express, { type Request, Response, NextFunction } from "express";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
+// import { fileURLToPath } from "url";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 
 // polyfill for __dirname since we are in ESM
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname = path.resolve()
+
+
 
 const app = express();
 const httpServer = createServer(app);
@@ -113,7 +116,12 @@ app.use((req, res, next) => {
   //     log(`serving on port ${port}`);
   //   },
   // );
-  httpServer.listen(port, "127.0.0.1", () => {
+
+  // httpServer.listen(port, "127.0.0.1", () => {
+  // log(`serving on port ${port}`);
+  // });
+
+  httpServer.listen(port, "0.0.0.0", () => {
   log(`serving on port ${port}`);
   });
 
