@@ -160,7 +160,20 @@ export function EmployeeForm({ initialData, onSubmit, isPending }: EmployeeFormP
         </div>
         <ScrollArea className="flex-1 pr-4">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-6">
+            <form
+                onSubmit={form.handleSubmit((values) => {
+                  // extra client-side guard to show popup when id is missing/invalid
+                  if (!values.id || values.id.trim() === "") {
+                    alert("Employee ID is required");
+                    return;
+                  }
+                  if (/\s/.test(values.id)) {
+                    alert("Employee ID cannot contain spaces");
+                    return;
+                  }
+                  onSubmit(values);
+                })}
+                className="space-y-6 pb-6">
               
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-sm font-semibold text-primary">

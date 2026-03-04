@@ -42,7 +42,15 @@ export const cardViews = pgTable("card_views", {
   userAgent: text("user_agent"),
 });
 
-export const insertEmployeeSchema = createInsertSchema(employees).omit({ createdAt: true, updatedAt: true });
+export const insertEmployeeSchema = createInsertSchema(employees)
+  .omit({ createdAt: true, updatedAt: true })
+  // ID must be non-empty and contain no whitespace characters
+  .extend({
+    id: z
+      .string()
+      .min(1, { message: "Employee ID is required" })
+      .regex(/^\S+$/, { message: "Employee ID cannot contain spaces" }),
+  });
 export const insertCardViewSchema = createInsertSchema(cardViews).omit({ id: true, viewedAt: true });
 
 export type Employee = typeof employees.$inferSelect;
