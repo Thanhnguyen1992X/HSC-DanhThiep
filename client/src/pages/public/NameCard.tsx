@@ -13,7 +13,10 @@ import {
   QrCode,
   MapPin,
   Building2,
-  Share2
+  Share2,
+  Smartphone,
+  Printer,
+  Home
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -224,7 +227,7 @@ END:VCARD`;
             {employee.mobilePhone && (
               <a href={`tel:${employee.mobilePhone}`} className="flex flex-col items-center gap-2 group hover-elevate">
                 <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                  <Phone className="w-5 h-5" />
+                  <Smartphone className="w-5 h-5" />
                 </div>
               </a>
             )}
@@ -232,7 +235,7 @@ END:VCARD`;
             {employee.fax && (
               <a href={`tel:${employee.fax}`} className="flex flex-col items-center gap-2 group hover-elevate">
                 <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                  <Phone className="w-5 h-5" />
+                  <Printer className="w-5 h-5" />
                 </div>
               </a>
             )}
@@ -277,7 +280,7 @@ END:VCARD`;
             {employee.mobilePhone && (
             <a href={`tel:${employee.mobilePhone}`} className="flex items-center gap-4 p-2 rounded-xl hover:bg-card hover:shadow-sm transition-all duration-200">
               <div className="w-10 h-10 rounded-full bg-background border flex items-center justify-center text-primary flex-shrink-0">
-                <Phone className="w-4 h-4" />
+                <Smartphone className="w-4 h-4" />
               </div>
               <div className="overflow-hidden">
                 <p className="text-xs font-medium text-muted-foreground mb-0.5">{isEnglish ? 'Mobile Phone' : 'Điện Thoại Di Động'}</p>
@@ -289,7 +292,7 @@ END:VCARD`;
             {employee.fax && (
             <a href={`tel:${employee.fax}`} className="flex items-center gap-4 p-2 rounded-xl hover:bg-card hover:shadow-sm transition-all duration-200">
               <div className="w-10 h-10 rounded-full bg-background border flex items-center justify-center text-primary flex-shrink-0">
-                <Phone className="w-4 h-4" />
+                <Printer className="w-4 h-4" />
               </div>
               <div className="overflow-hidden">
                 <p className="text-xs font-medium text-muted-foreground mb-0.5">Fax</p>
@@ -334,7 +337,7 @@ END:VCARD`;
             {choose(employee.mainOffice_en, employee.mainOffice) && (
               <div className="flex items-center gap-4 p-2 rounded-xl hover:bg-card hover:shadow-sm transition-all duration-200">
                 <div className="w-10 h-10 rounded-full bg-background border flex items-center justify-center text-primary flex-shrink-0">
-                  <MapPin className="w-4 h-4" />
+                  <Home className="w-4 h-4" />
                 </div>
                 <div className="overflow-hidden">
                   <p className="text-xs font-medium text-muted-foreground mb-0.5">{isEnglish ? 'Main Office' : 'Trụ Sở'}</p>
